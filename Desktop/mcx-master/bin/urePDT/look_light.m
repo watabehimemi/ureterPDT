@@ -1,32 +1,3 @@
-% lookmcxyz.m
-%   Looks at myname_F.bin, created by mcxyz.c 
-%   where myname is the name of the run: myname_T.bin, myname_H.mci
-%
-% lookmcxyz_alc2.m, July 23
-%       Absorption array is OFF.
-%
-%   Simulates angiolight catheter within 4-mm-dia. vessel
-% with the vessel wall at a particular musp value. 
-%   For this run, musp = 200 cm^-1.
-%
-% Reads 8 mcxyz runs, for 8 catheter positions, zs = 0.2 to 0.6 cm.
-% For each run:
-%   alc#_H.mci --> header:
-%       timin,Nx,Ny,Nz,dy,dx,dz,xs,ys,zx,Nt,muav(),musv(),gv()
-%   alc#_F.bin --> F(y,x,z) = relative fluence rate [1/cm^2]
-%   alc#_T.bin --> T(y,x,z) = tissue types
-%
-% Displays
-%   Tzx = end-view of tissue structure
-%   Fzx = end-view of vessel @ source, ys = -0.15 cm
-%   Fzy = side-view along length of vessel
-%
-% Saves
-%   Fzy_data4.mat = Fzy y z zzs Fdet
-%       Fzy(400,400,8) = 8 z,y images
-%       Fdet(8,1) = signal [1/cm^2] @ detector fiber
-%
-
 home
 clear
 format compact
@@ -37,6 +8,7 @@ cc = 'rbgm'; % color
 %%%% USER CHOICES <---------- you must specify -----
 myname = 'disc';
 nm     = 800;
+threshold = 0.05; % 閾値
 %%%%
 
 Nx = 150;
@@ -95,8 +67,15 @@ Flyz = reshape(Flyzx(:,:,Nx/2), Ny, Nz)';
 Flzxy = shiftdim(Fl, 2);   % Txyz --> Tzxy 
 disp(size(Flzxy(:,:,Ny/2)));
 Flxz = reshape(Flzxy(:,:,Ny/2), Nz, Nx)';
-%% Fz, Fx
 
+% 閾値以上の領域の境界線を見つける
+binaryImage1 = Flxz > threshold;
+binaryImage2 = Flyz > threshold;
+binaryImage3 = Flxy > threshold;
+boundaries1 = bwboundaries(binaryImage1, 'noholes');
+boundaries2 = bwboundaries(binaryImage2, 'noholes');
+boundaries3 = bwboundaries(binaryImage3, 'noholes');
+%% Fz, Fx
 fsz = 14;
 figure(1); clf
 imagesc(x, z, log10(Flxz), [-5 0])
@@ -111,18 +90,34 @@ colormap('jet')
 axis equal image
 grid minor
 
+% fig1に境界線を追加
+figure(1);
+hold on;
+for k = 1:numel(boundaries1)
+    boundary = boundaries1{k};
+    plot(boundary(:,2) * dx, boundary(:,1) * dz, 'r', 'LineWidth', 1);
+end
+
 figure(2); clf
-imagesc(y, z, log10(Flyz), [-5 0])
+imagesc(z, y, log10(Flyz), [-5 0]) % x軸とy軸を入れ替える
 hold on
 colorbar
 set(gca, 'fontsize', fsz)
 set(gca, 'fontname', 'Arial')
-xlabel('\ity \rm[mm]')
-ylabel('\itz \rm[mm]')
+xlabel('\itz \rm[mm]')
+ylabel('\ity \rm[mm]')
 ylim([-1,1])
 colormap('jet')
 axis equal image
 grid minor
+
+% fig2に境界線を追加
+figure(2);
+hold on;
+for k = 1:numel(boundaries2)
+    boundary = boundaries2{k};
+    plot(boundary(:,2) * dz, boundary(:,1) * dy, 'r', 'LineWidth', 1); % x軸とy軸を入れ替える
+end
 
 figure(3); clf
 imagesc(x, y, log10(Flxy), [-5 0])
@@ -137,27 +132,11 @@ colormap('jet')
 axis equal image
 grid minor
 
-% figure(4);
-% xslice = Nx/2;   
-% yslice = Ny/2;
-% zslice = Nz/2;
-% t = slice(Fl, xslice, yslice, zslice);
-% set(t, 'EdgeColor', 'none');
-% alpha('color');
-% alphamap('vup');
-% xlabel('y [mm]')
-% ylabel('x [mm]')
-% zlabel('z [mm]')
+% fig3に境界線を追加
+figure(3);
+hold on;
+for k = 1:numel(boundaries3)
+    boundary = boundaries3{k};
+    plot(boundary(:,2) * dx, boundary(:,1) * dy, 'r', 'LineWidth', 1);
+end
 
-%%
-% figure(5);
-% cmap = parula(256);
-% sliceViewer(Fl, 'Colormap', cmap, 'SliceDirection', [1 0 0]);
-% 
-% figure(6);
-% cmap = parula(256);
-% sliceViewer(Fl, 'Colormap', cmap, 'SliceDirection', [0 1 0]);
-% 
-% figure(7);
-% cmap = parula(256);
-% sliceViewer(Fl, 'Colormap', cmap, 'SliceDirection', [0 0 1]);
