@@ -1,0 +1,76 @@
+{
+  "Domain": {
+    "Dim": [
+      150,
+      150,
+      150
+    ],
+    "LengthUnit": 0.1,
+    "Media": [
+      {
+        "g": 1.0,
+        "mua": 0.1,
+        "mus": 0.1,
+        "n": 1
+      },
+      {
+        "g": 1.0,
+        "mua": 0.00001,
+        "mus": 0.1,
+        "n": 1.33
+      },
+      {
+        "g": 0.9,
+        "mua": 0.025,
+        "mus": 50.95,
+        "n": 1.4
+      },
+      {
+        "g": 0.9,
+        "mua": 0.022,
+        "mus": 85.9,
+        "n": 1.4
+      }
+    ],
+    "OriginType": 1,
+    "VolumeFile": "discT.bin"
+  },
+  "Forward": {
+    "Dt": 5e-08,
+    "T0": 0,
+    "T1": 5e-08
+  },
+  "Optode": {
+    "Source": {
+      "Dir": [
+        0,
+        0,
+        1
+      ],
+      "Param1": [
+        0.375,
+        90,
+        0,
+        0
+      ],
+      "Param2": [
+        250,
+        0,
+        0,
+        0
+      ],
+      "Pos": [
+        75,
+        75,
+        75 
+      ],
+      "Type": "disk"
+    }
+  },
+  "Session": {
+    "DoAutoThread": 1,
+    "DoMismatch": 1,
+    "ID": "disc",
+    "Photons": 10000000
+  }
+}
